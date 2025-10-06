@@ -17,10 +17,10 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         uint256 timestamp;
     }
     
-    IERC20 public immutable USDC;
+    IERC20 public immutable usdc;
     UserSharesToken public immutable sharesToken;
 
-    address public creator;
+    address public immutable creator;
     string public title;
     string public description;
     uint256 public goalAmount;
@@ -59,7 +59,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         require(_maxContributionAmount <= type(uint256).max, "Max contribution amount too large");
         require(_maxContributionPercentage > 0 && _maxContributionPercentage <= 10000, "Max contribution percentage must be between 1 and 10000 basis points (0.01% to 100%)");
         
-        USDC = IERC20(_USDC);
+        usdc = IERC20(_USDC);
         
         creator = _initialOwner;
         title = _title;
@@ -168,7 +168,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     }
     
     
-    function contribute(uint256 _amount) 
+    function contribute(uint256 amount) 
         external 
         nonReentrant
         campaignActive()
@@ -177,44 +177,45 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         _checkAndCompleteOnDeadline();
         
         require(msg.sender != address(0), "Zero address");
-        require(_amount > 0, "Contribution amount must be greater than 0");
-        require(USDC.balanceOf(msg.sender) >= _amount, "Insufficient USDC balance");
-        require(USDC.allowance(msg.sender, address(this)) >= _amount, "Insufficient USDC allowance");
+        require(amount > 0, "Contribution amount must be greater than 0");
+        require(usdc.balanceOf(msg.sender) >= amount, "Insufficient USDC balance");
+        require(usdc.allowance(msg.sender, address(this)) >= amount, "Insufficient USDC allowance");
         
-        require(_amount <= maxContributionAmount, "Contribution exceeds maximum allowed amount");
-        require(_amount <= (goalAmount * maxContributionPercentage) / 10000, "Contribution exceeds maximum percentage of goal");
+        require(amount <= maxContributionAmount, "Contribution exceeds maximum allowed amount");
+        require(amount <= (goalAmount * maxContributionPercentage) / 10000, "Contribution exceeds maximum percentage of goal");
         
-        require(currentAmount <= type(uint256).max - _amount, "Contribution would cause currentAmount overflow");
+        require(currentAmount <= type(uint256).max - amount, "Contribution would cause currentAmount overflow");
         
-        uint256 totalContributorAmount = contributorAmounts[msg.sender] + _amount;
+        uint256 totalContributorAmount = contributorAmounts[msg.sender] + amount;
         require(totalContributorAmount <= (goalAmount * maxContributionPercentage) / 10000, "Total contributions would exceed maximum percentage limit");
         
-        require(contributorAmounts[msg.sender] <= type(uint256).max - _amount, "Contribution would cause contributor amount overflow");
+        require(contributorAmounts[msg.sender] <= type(uint256).max - amount, "Contribution would cause contributor amount overflow");
         
-        USDC.safeTransferFrom(msg.sender, address(this), _amount);
-        
-        sharesToken.mint(msg.sender, _amount);
-        
-        contributions.push(Contribution({
-            contributor: msg.sender,
-            amount: _amount,
-            timestamp: block.timestamp
-        }));
-        
-        currentAmount += _amount;
+        currentAmount += amount;
+        contributorAmounts[msg.sender] += amount;
         
         if (!hasContributed[msg.sender]) {
             hasContributed[msg.sender] = true;
             contributorCount++;
         }
-        contributorAmounts[msg.sender] += _amount;
         
-        emit ContributionMade(msg.sender, _amount, currentAmount);
-        emit SharesMinted(msg.sender, _amount);
+        contributions.push(Contribution({
+            contributor: msg.sender,
+            amount: amount,
+            timestamp: block.timestamp
+        }));
         
+        bool campaignCompleted = false;
         if (currentAmount >= goalAmount) {
             _completeCampaign(true);
+            campaignCompleted = true;
         }
+        
+        usdc.safeTransferFrom(msg.sender, address(this), amount);
+        sharesToken.mint(msg.sender, amount);
+        
+        emit ContributionMade(msg.sender, amount, currentAmount);
+        emit SharesMinted(msg.sender, amount);
     }
     
     function withdrawFunds()
@@ -232,7 +233,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         isCompleted = true;
         isActive = false;
         
-        USDC.safeTransfer(creator, amount);
+        usdc.safeTransfer(creator, amount);
         
         emit FundsWithdrawn(creator, amount);
         emit CampaignCompleted(true, amount);
@@ -261,7 +262,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         isCompleted = true;
         isActive = false;
         
-        USDC.safeTransfer(creator, amount);
+        usdc.safeTransfer(creator, amount);
         
         emit EmergencyWithdrawal(creator, amount);
         emit CampaignCompleted(false, amount);
@@ -294,7 +295,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         hasRefunded[msg.sender] = true;
         currentAmount -= refundAmount;
         
-        USDC.safeTransfer(msg.sender, refundAmount);
+        usdc.safeTransfer(msg.sender, refundAmount);
         
         sharesToken.burn(msg.sender, refundAmount);
         
@@ -315,87 +316,87 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         }
     }
     
-    function updateDeadline(uint256 _newDeadline) 
+    function updateDeadline(uint256 newDeadline) 
         external 
         onlyCampaignCreator() 
         campaignNotCompleted() 
     {
-        require(_newDeadline > block.timestamp, "New deadline must be in the future");
-        require(_newDeadline != deadline, "New deadline must be different from current deadline");
+        require(newDeadline > block.timestamp, "New deadline must be in the future");
+        require(newDeadline != deadline, "New deadline must be different from current deadline");
         
         uint256 oldDeadline = deadline;
-        deadline = _newDeadline;
+        deadline = newDeadline;
         
-        emit DeadlineUpdated(oldDeadline, _newDeadline);
+        emit DeadlineUpdated(oldDeadline, newDeadline);
     }
     
-    function updateGoalAmount(uint256 _newGoalAmount) 
+    function updateGoalAmount(uint256 newGoalAmount) 
         external 
         onlyCampaignCreator() 
         campaignNotCompleted() 
     {
-        require(_newGoalAmount > 0, "Goal amount must be greater than 0");
-        require(_newGoalAmount <= type(uint256).max / 10000, "Goal amount too large for percentage calculations");
-        require(_newGoalAmount != goalAmount, "New goal amount must be different from current goal");
+        require(newGoalAmount > 0, "Goal amount must be greater than 0");
+        require(newGoalAmount <= type(uint256).max / 10000, "Goal amount too large for percentage calculations");
+        require(newGoalAmount != goalAmount, "New goal amount must be different from current goal");
         
         uint256 oldGoalAmount = goalAmount;
-        goalAmount = _newGoalAmount;
+        goalAmount = newGoalAmount;
         
-        emit GoalAmountUpdated(oldGoalAmount, _newGoalAmount);
+        emit GoalAmountUpdated(oldGoalAmount, newGoalAmount);
         
         if (currentAmount >= goalAmount && isActive) {
             _completeCampaign(true);
         }
     }
     
-    function updateIsActive(bool _newIsActive) 
+    function updateIsActive(bool newIsActive) 
         external 
         onlyCampaignCreator() 
         campaignNotCompleted() 
     {
-        require(_newIsActive != isActive, "New status must be different from current status");
+        require(newIsActive != isActive, "New status must be different from current status");
         
         bool oldIsActive = isActive;
-        isActive = _newIsActive;
+        isActive = newIsActive;
         
-        emit CampaignStatusUpdated(oldIsActive, _newIsActive);
+        emit CampaignStatusUpdated(oldIsActive, newIsActive);
     }
     
-    function updateMaxContributionAmount(uint256 _newMaxAmount) 
+    function updateMaxContributionAmount(uint256 newMaxAmount) 
         external 
         onlyCampaignCreator() 
         campaignNotCompleted() 
     {
-        require(_newMaxAmount > 0, "Max contribution amount must be greater than 0");
-        require(_newMaxAmount <= type(uint256).max, "Max contribution amount too large");
-        require(_newMaxAmount != maxContributionAmount, "New max amount must be different from current max amount");
+        require(newMaxAmount > 0, "Max contribution amount must be greater than 0");
+        require(newMaxAmount <= type(uint256).max, "Max contribution amount too large");
+        require(newMaxAmount != maxContributionAmount, "New max amount must be different from current max amount");
         
         uint256 oldMaxAmount = maxContributionAmount;
-        maxContributionAmount = _newMaxAmount;
+        maxContributionAmount = newMaxAmount;
         
-        emit MaxContributionAmountUpdated(oldMaxAmount, _newMaxAmount);
+        emit MaxContributionAmountUpdated(oldMaxAmount, newMaxAmount);
     }
     
-    function updateMaxContributionPercentage(uint256 _newMaxPercentage) 
+    function updateMaxContributionPercentage(uint256 newMaxPercentage) 
         external 
         onlyCampaignCreator() 
         campaignNotCompleted() 
     {
-        require(_newMaxPercentage > 0 && _newMaxPercentage <= 10000, "Max contribution percentage must be between 1 and 10000 basis points");
-        require(_newMaxPercentage != maxContributionPercentage, "New max percentage must be different from current max percentage");
+        require(newMaxPercentage > 0 && newMaxPercentage <= 10000, "Max contribution percentage must be between 1 and 10000 basis points");
+        require(newMaxPercentage != maxContributionPercentage, "New max percentage must be different from current max percentage");
         
         uint256 oldMaxPercentage = maxContributionPercentage;
-        maxContributionPercentage = _newMaxPercentage;
+        maxContributionPercentage = newMaxPercentage;
         
-        emit MaxContributionPercentageUpdated(oldMaxPercentage, _newMaxPercentage);
+        emit MaxContributionPercentageUpdated(oldMaxPercentage, newMaxPercentage);
     }
     
     function getCampaignContributions() external view returns (Contribution[] memory) {
         return contributions;
     }
     
-    function getContributorAmount(address _contributor) external view returns (uint256) {
-        return contributorAmounts[_contributor];
+    function getContributorAmount(address contributor) external view returns (uint256) {
+        return contributorAmounts[contributor];
     }
     
     function getCampaignStats()
@@ -418,8 +419,8 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         );
     }
     
-    function getUserShareBalance(address _user) external view returns (uint256) {
-        return sharesToken.balanceOf(_user);
+    function getUserShareBalance(address user) external view returns (uint256) {
+        return sharesToken.balanceOf(user);
     }
     
     function getSharesTokenAddress() external view returns (address) {
@@ -437,10 +438,10 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         return (maxContributionAmount, maxContributionPercentage);
     }
     
-    function getMaxAllowedContribution(address _contributor) external view returns (uint256) {
+    function getMaxAllowedContribution(address contributor) external view returns (uint256) {
         uint256 maxByAmount = maxContributionAmount;
         uint256 maxByPercentage = (goalAmount * maxContributionPercentage) / 10000;
-        uint256 maxByContributorHistory = (goalAmount * maxContributionPercentage) / 10000 - contributorAmounts[_contributor];
+        uint256 maxByContributorHistory = (goalAmount * maxContributionPercentage) / 10000 - contributorAmounts[contributor];
         
         uint256 limitByAmount = maxByAmount < maxByPercentage ? maxByAmount : maxByPercentage;
         return limitByAmount < maxByContributorHistory ? limitByAmount : maxByContributorHistory;

@@ -20,8 +20,8 @@ contract UserSharesToken is ERC20, ERC20Burnable, Ownable, ERC1363, ERC20Permit,
         _mint(to, amount);
     }
     
-    function burn(address _from, uint256 _amount) public onlyOwner {
-        _burn(_from, _amount);
+    function burn(address from, uint256 amount) public onlyOwner {
+        _burn(from, amount);
     }
 
     function _update(address from, address to, uint256 value)
@@ -31,12 +31,12 @@ contract UserSharesToken is ERC20, ERC20Burnable, Ownable, ERC1363, ERC20Permit,
         super._update(from, to, value);
     }
 
-    function nonces(address owner)
+    function nonces(address account)
         public
         view
         override(ERC20Permit, Nonces)
         returns (uint256)
     {
-        return super.nonces(owner);
+        return super.nonces(account);
     }
 }

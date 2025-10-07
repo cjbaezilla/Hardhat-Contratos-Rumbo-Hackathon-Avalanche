@@ -133,25 +133,61 @@ Solo el creador de la campaña puede realizar ciertas acciones como retirar fond
 
 1. **Crear Tu Campaña**: Despliega el contrato con los parámetros de tu campaña
 2. **Monitorear el Progreso**: Revisa las contribuciones y el estado de la campaña regularmente
-3. **Retirar Fondos**: Una vez que se alcance la meta, llama a `withdrawFunds`
-4. **Manejar Reembolsos**: Si la campaña falla, los contribuyentes pueden solicitar reembolsos
-5. **Retiro de Emergencia**: Si es necesario, retira fondos parciales después de la fecha límite
+3. **Actualizar Parámetros**: Ajusta la fecha límite, monto de la meta o límites de contribución según sea necesario
+4. **Retirar Fondos**: Una vez que se alcance la meta, llama a `withdrawFunds`
+5. **Manejar Reembolsos**: Si la campaña falla, los contribuyentes pueden solicitar reembolsos
+6. **Verificación Manual de Fecha Límite**: Usa `checkDeadlineAndComplete()` para verificar manualmente el estado de la campaña
 
 ## Características Avanzadas
 
 ### Actualizaciones de Campaña
 Los creadores pueden actualizar ciertos parámetros durante la campaña:
-- **Fecha Límite**: Extender o acortar la duración de la campaña
-- **Monto de la Meta**: Ajustar el objetivo de financiamiento
-- **Estado Activo**: Pausar o reanudar la campaña
-- **Límites de Contribución**: Modificar los parámetros anti-ballena
+- **Fecha Límite**: Extender o acortar la duración de la campaña usando `updateDeadline()`
+- **Monto de la Meta**: Ajustar el objetivo de financiamiento usando `updateGoalAmount()`
+- **Límites de Contribución**: Modificar los parámetros anti-ballena usando `updateMaxContributionAmount()` y `updateMaxContributionPercentage()`
+- **Verificación de Fecha Límite**: Activar manualmente las verificaciones de fecha límite usando `checkDeadlineAndComplete()`
 
 ### Ver Datos de la Campaña
 El contrato proporciona varias funciones para ver información de la campaña:
-- **Estadísticas de la Campaña**: Meta, monto actual, fecha límite, estado
-- **Contribuciones**: Lista completa de todas las contribuciones
-- **Saldos de Usuario**: Cuánto ha contribuido cada persona
-- **Saldos de Participación**: Cuántos tokens de participación tiene cada persona
+- **Estadísticas de la Campaña**: Meta, monto actual, fecha límite, estado usando `getCampaignStats()`
+- **Contribuciones**: Lista completa de todas las contribuciones usando `getCampaignContributions()`
+- **Saldos de Usuario**: Cuánto ha contribuido cada persona usando `getContributorAmount()`
+- **Saldos de Participación**: Cuántos tokens de participación tiene cada persona usando `getUserShareBalance()`
+- **Parámetros Anti-Ballena**: Límites actuales usando `getAntiWhaleParameters()`
+- **Contribución Máxima Permitida**: Calcular límites para usuarios específicos usando `getMaxAllowedContribution()`
+- **Información de Tokens**: Dirección del token de participación y suministro total usando `getSharesTokenAddress()` y `getTotalSharesSupply()`
+
+### Funciones Administrativas Avanzadas
+
+#### Actualización de Parámetros de Campaña
+Los creadores de campañas tienen acceso a varias funciones administrativas para gestionar sus campañas:
+
+**`updateDeadline(uint256 newDeadline)`**
+- Permite a los creadores extender o modificar la fecha límite de la campaña
+- La nueva fecha límite debe estar en el futuro y ser diferente a la fecha límite actual
+- Solo puede ser llamada por el creador de la campaña
+- La campaña no debe estar completada
+
+**`updateGoalAmount(uint256 newGoalAmount)`**
+- Permite a los creadores ajustar el objetivo de financiamiento
+- El nuevo objetivo debe ser mayor que 0 y diferente al objetivo actual
+- Si el nuevo objetivo es menor que el monto actual, la campaña se completa automáticamente
+- Solo puede ser llamada por el creador de la campaña
+
+**`updateMaxContributionAmount(uint256 newMaxAmount)`**
+- Modifica el monto máximo que cualquier persona individual puede contribuir
+- El nuevo monto debe ser mayor que 0 y diferente al límite actual
+- Ayuda a mantener la protección anti-ballena
+
+**`updateMaxContributionPercentage(uint256 newMaxPercentage)`**
+- Ajusta el porcentaje máximo del objetivo que cualquier persona individual puede contribuir
+- Debe estar entre 1 y 10000 puntos base (0.01% a 100%)
+- Diferente al porcentaje actual
+
+**`checkDeadlineAndComplete()`**
+- Activa manualmente la verificación de fecha límite y finalización de campaña
+- Puede ser llamada por cualquier persona para asegurar que el estado de la campaña esté actualizado
+- Útil para asegurar un estado preciso de la campaña
 
 ## Escenarios Comunes
 
@@ -188,6 +224,9 @@ El contrato proporciona varias funciones para ver información de la campaña:
 - **Proporcionar Actualizaciones**: Mantén informados a los contribuyentes sobre el progreso
 - **Respetar Fechas Límite**: No extiendas las fechas límite innecesariamente
 - **Planificar para el Éxito**: Ten un plan para lo que sucede cuando alcances tu meta
+- **Monitorear Parámetros Anti-Ballena**: Revisa y ajusta regularmente los límites de contribución según sea necesario
+- **Usar Funciones Administrativas**: Aprovecha `updateDeadline()`, `updateGoalAmount()` y las funciones de límites para optimizar el rendimiento de la campaña
+- **Verificar Estado de la Campaña**: Usa `checkDeadlineAndComplete()` para asegurar un estado preciso de la campaña
 
 ## Requisitos Técnicos
 

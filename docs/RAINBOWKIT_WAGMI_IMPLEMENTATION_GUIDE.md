@@ -212,6 +212,100 @@ const FUNDRAISING_CAMPAIGN_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    inputs: [{ name: 'contributor', type: 'address' }],
+    name: 'getMaxAllowedContribution',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getAntiWhaleParameters',
+    outputs: [
+      { name: '_maxContributionAmount', type: 'uint256' },
+      { name: '_maxContributionPercentage', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getSharesTokenAddress',
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getTotalSharesSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'contributor', type: 'address' }],
+    name: 'getContributorAmount',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'getUserShareBalance',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdrawFunds',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'requestRefund',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'newDeadline', type: 'uint256' }],
+    name: 'updateDeadline',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'newGoalAmount', type: 'uint256' }],
+    name: 'updateGoalAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'newMaxAmount', type: 'uint256' }],
+    name: 'updateMaxContributionAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'newMaxPercentage', type: 'uint256' }],
+    name: 'updateMaxContributionPercentage',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'checkDeadlineAndComplete',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ] as const;
 
 export function useFundraisingCampaign() {
@@ -239,11 +333,84 @@ export function useFundraisingCampaign() {
     functionName: 'description',
   });
 
+  const { data: antiWhaleParams } = useContractRead({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'getAntiWhaleParameters',
+  });
+
+  const { data: maxAllowedContribution } = useContractRead({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'getMaxAllowedContribution',
+    args: address ? [address] : undefined,
+    enabled: !!address,
+  });
+
+  const { data: userShareBalance } = useContractRead({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'getUserShareBalance',
+    args: address ? [address] : undefined,
+    enabled: !!address,
+  });
+
+  const { data: sharesTokenAddress } = useContractRead({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'getSharesTokenAddress',
+  });
+
   // Write functions
   const { write: contribute, isLoading: isContributing } = useContractWrite({
     address: contractAddress,
     abi: FUNDRAISING_CAMPAIGN_ABI,
     functionName: 'contribute',
+    onSuccess: () => {
+      refetchStats();
+    },
+  });
+
+  const { write: withdrawFunds, isLoading: isWithdrawing } = useContractWrite({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'withdrawFunds',
+    onSuccess: () => {
+      refetchStats();
+    },
+  });
+
+  const { write: requestRefund, isLoading: isRefunding } = useContractWrite({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'requestRefund',
+    onSuccess: () => {
+      refetchStats();
+    },
+  });
+
+  const { write: updateDeadline, isLoading: isUpdatingDeadline } = useContractWrite({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'updateDeadline',
+    onSuccess: () => {
+      refetchStats();
+    },
+  });
+
+  const { write: updateGoalAmount, isLoading: isUpdatingGoal } = useContractWrite({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'updateGoalAmount',
+    onSuccess: () => {
+      refetchStats();
+    },
+  });
+
+  const { write: checkDeadlineAndComplete } = useContractWrite({
+    address: contractAddress,
+    abi: FUNDRAISING_CAMPAIGN_ABI,
+    functionName: 'checkDeadlineAndComplete',
     onSuccess: () => {
       refetchStats();
     },
@@ -257,12 +424,51 @@ export function useFundraisingCampaign() {
     contribute({ args: [amountInWei] });
   };
 
+  const handleWithdrawFunds = () => {
+    if (!withdrawFunds) return;
+    withdrawFunds();
+  };
+
+  const handleRequestRefund = () => {
+    if (!requestRefund) return;
+    requestRefund();
+  };
+
+  const handleUpdateDeadline = (newDeadline: number) => {
+    if (!updateDeadline) return;
+    updateDeadline({ args: [BigInt(newDeadline)] });
+  };
+
+  const handleUpdateGoalAmount = (newGoalAmount: string) => {
+    if (!updateGoalAmount) return;
+    const amountInWei = parseUnits(newGoalAmount, 6);
+    updateGoalAmount({ args: [amountInWei] });
+  };
+
+  const handleCheckDeadlineAndComplete = () => {
+    if (!checkDeadlineAndComplete) return;
+    checkDeadlineAndComplete();
+  };
+
   return {
     campaignStats,
     title,
     description,
+    antiWhaleParams,
+    maxAllowedContribution,
+    userShareBalance,
+    sharesTokenAddress,
     contributeToCampaign,
+    handleWithdrawFunds,
+    handleRequestRefund,
+    handleUpdateDeadline,
+    handleUpdateGoalAmount,
+    handleCheckDeadlineAndComplete,
     isContributing,
+    isWithdrawing,
+    isRefunding,
+    isUpdatingDeadline,
+    isUpdatingGoal,
     refetchStats,
     isConnected: !!address,
   };
@@ -312,12 +518,26 @@ import { useUSDCBalance } from '@/hooks/use-usdc-balance';
 
 export function CampaignDashboard() {
   const [contributionAmount, setContributionAmount] = useState('');
+  const [newDeadline, setNewDeadline] = useState('');
+  const [newGoalAmount, setNewGoalAmount] = useState('');
   const { 
     campaignStats, 
     title, 
     description, 
+    antiWhaleParams,
+    maxAllowedContribution,
+    userShareBalance,
     contributeToCampaign, 
+    handleWithdrawFunds,
+    handleRequestRefund,
+    handleUpdateDeadline,
+    handleUpdateGoalAmount,
+    handleCheckDeadlineAndComplete,
     isContributing,
+    isWithdrawing,
+    isRefunding,
+    isUpdatingDeadline,
+    isUpdatingGoal,
     isConnected 
   } = useFundraisingCampaign();
   const { balance, balanceFormatted } = useUSDCBalance();
@@ -326,6 +546,19 @@ export function CampaignDashboard() {
     if (!contributionAmount || !isConnected) return;
     contributeToCampaign(contributionAmount);
     setContributionAmount('');
+  };
+
+  const handleUpdateDeadlineSubmit = () => {
+    if (!newDeadline) return;
+    const timestamp = Math.floor(new Date(newDeadline).getTime() / 1000);
+    handleUpdateDeadline(timestamp);
+    setNewDeadline('');
+  };
+
+  const handleUpdateGoalSubmit = () => {
+    if (!newGoalAmount) return;
+    handleUpdateGoalAmount(newGoalAmount);
+    setNewGoalAmount('');
   };
 
   if (!campaignStats) {
@@ -399,10 +632,37 @@ export function CampaignDashboard() {
             <h3 className="text-lg font-semibold mb-4">Contribute to Campaign</h3>
             
             {isConnected && (
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  Your USDC Balance: {balanceFormatted} USDC
-                </p>
+              <div className="mb-4 space-y-2">
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    Your USDC Balance: {balanceFormatted} USDC
+                  </p>
+                </div>
+                
+                {maxAllowedContribution && (
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      Max Allowed Contribution: ${(Number(maxAllowedContribution) / 1e6).toLocaleString()} USDC
+                    </p>
+                  </div>
+                )}
+
+                {userShareBalance && Number(userShareBalance) > 0 && (
+                  <div className="p-3 bg-purple-50 rounded-lg">
+                    <p className="text-sm text-purple-800">
+                      Your Share Tokens: {Number(userShareBalance) / 1e6} userSHARE
+                    </p>
+                  </div>
+                )}
+
+                {antiWhaleParams && (
+                  <div className="p-3 bg-yellow-50 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      Anti-Whale Limits: Max ${(Number(antiWhaleParams[0]) / 1e6).toLocaleString()} per transaction, 
+                      {(Number(antiWhaleParams[1]) / 100).toFixed(2)}% of goal
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -452,6 +712,106 @@ export function CampaignDashboard() {
             </p>
           </div>
         )}
+
+        {/* Campaign Management Section */}
+        <div className="border-t pt-6 mt-6">
+          <h3 className="text-lg font-semibold mb-4">Campaign Management</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Withdraw Funds */}
+            {isCompleted && (
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-2">Withdraw Funds</h4>
+                <p className="text-sm text-green-600 mb-3">
+                  Campaign goal reached! You can withdraw all funds.
+                </p>
+                <button
+                  onClick={handleWithdrawFunds}
+                  disabled={isWithdrawing}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                >
+                  {isWithdrawing ? 'Withdrawing...' : 'Withdraw Funds'}
+                </button>
+              </div>
+            )}
+
+            {/* Request Refund */}
+            {!isActive && !isCompleted && userShareBalance && Number(userShareBalance) > 0 && (
+              <div className="p-4 bg-red-50 rounded-lg">
+                <h4 className="font-medium text-red-800 mb-2">Request Refund</h4>
+                <p className="text-sm text-red-600 mb-3">
+                  Campaign didn't reach its goal. You can request a refund.
+                </p>
+                <button
+                  onClick={handleRequestRefund}
+                  disabled={isRefunding}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+                >
+                  {isRefunding ? 'Processing...' : 'Request Refund'}
+                </button>
+              </div>
+            )}
+
+            {/* Update Deadline */}
+            {isActive && !isCompleted && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-2">Update Deadline</h4>
+                <div className="space-y-2">
+                  <input
+                    type="datetime-local"
+                    value={newDeadline}
+                    onChange={(e) => setNewDeadline(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <button
+                    onClick={handleUpdateDeadlineSubmit}
+                    disabled={!newDeadline || isUpdatingDeadline}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors text-sm"
+                  >
+                    {isUpdatingDeadline ? 'Updating...' : 'Update Deadline'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Update Goal Amount */}
+            {isActive && !isCompleted && (
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <h4 className="font-medium text-purple-800 mb-2">Update Goal Amount</h4>
+                <div className="space-y-2">
+                  <input
+                    type="number"
+                    value={newGoalAmount}
+                    onChange={(e) => setNewGoalAmount(e.target.value)}
+                    placeholder="New goal amount in USDC"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <button
+                    onClick={handleUpdateGoalSubmit}
+                    disabled={!newGoalAmount || isUpdatingGoal}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors text-sm"
+                  >
+                    {isUpdatingGoal ? 'Updating...' : 'Update Goal'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Check Deadline and Complete */}
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium text-gray-800 mb-2">Verify Campaign Status</h4>
+              <p className="text-sm text-gray-600 mb-3">
+                Manually check if the campaign should be completed.
+              </p>
+              <button
+                onClick={handleCheckDeadlineAndComplete}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+              >
+                Check Status
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -625,9 +985,51 @@ export const getChainsForEnvironment = () => {
 - [EthersJS Documentation](https://docs.ethers.org/v6/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
+## Advanced Contract Features
+
+### New Administrative Functions
+
+The updated contract includes several new administrative functions that provide enhanced campaign management capabilities:
+
+#### Campaign Parameter Updates
+- **`updateDeadline()`**: Allows campaign creators to extend or modify campaign deadlines
+- **`updateGoalAmount()`**: Enables goal amount adjustments during active campaigns
+- **`updateMaxContributionAmount()`**: Modifies maximum contribution limits
+- **`updateMaxContributionPercentage()`**: Adjusts percentage-based contribution limits
+
+#### Enhanced Query Functions
+- **`getMaxAllowedContribution()`**: Calculates the maximum contribution allowed for a specific user
+- **`getAntiWhaleParameters()`**: Returns current anti-whale protection settings
+- **`getSharesTokenAddress()`**: Provides the address of the associated share token
+- **`getTotalSharesSupply()`**: Returns the total supply of share tokens
+- **`getUserShareBalance()`**: Shows a user's current share token balance
+
+#### Campaign Status Management
+- **`checkDeadlineAndComplete()`**: Manually triggers deadline verification and campaign completion
+
+### Implementation Benefits
+
+These new features provide:
+
+1. **Enhanced User Experience**: Real-time display of contribution limits and share balances
+2. **Better Campaign Management**: Flexible parameter updates during active campaigns
+3. **Improved Transparency**: Clear visibility into anti-whale parameters and user contributions
+4. **DAO Integration**: Share token information for governance participation
+5. **Status Verification**: Manual campaign status checks for accuracy
+
+### Security Considerations
+
+When implementing these features:
+
+- Always validate user inputs before sending transactions
+- Implement proper error handling for failed transactions
+- Use appropriate loading states for better UX
+- Consider gas optimization for frequent updates
+- Ensure proper access control for administrative functions
+
 ## Conclusion
 
-This implementation guide provides a complete foundation for building a Web3 application with RainbowKit, Wagmi, EthersJS, and Next.js. The setup includes wallet connection, contract interactions, and a modern UI using Tailwind CSS.
+This implementation guide provides a complete foundation for building a Web3 application with RainbowKit, Wagmi, EthersJS, and Next.js. The setup includes wallet connection, contract interactions, and a modern UI using Tailwind CSS, now enhanced with advanced campaign management features.
 
 Remember to:
 - Test thoroughly on testnets before mainnet deployment
@@ -635,5 +1037,6 @@ Remember to:
 - Consider gas optimization for better user experience
 - Keep dependencies updated for security
 - Follow best practices for Web3 security
+- Leverage the new administrative functions for better campaign management
 
 Happy building! 🚀

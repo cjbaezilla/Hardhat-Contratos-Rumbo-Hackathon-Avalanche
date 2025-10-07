@@ -26,8 +26,6 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     uint256 public goalAmount;
     uint256 public currentAmount;
     uint256 public deadline;
-    bool public isActive;
-    bool public isCompleted;
     uint256 public contributorCount;
     
     uint256 public maxContributionAmount;
@@ -67,8 +65,6 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         goalAmount = _goalAmount;
         currentAmount = 0;
         deadline = block.timestamp + _duration;
-        isActive = true;
-        isCompleted = false;
         contributorCount = 0;
         
         maxContributionAmount = _maxContributionAmount;
@@ -107,11 +103,6 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         uint256 amount
     );
     
-    event EmergencyWithdrawal(
-        address indexed creator,
-        uint256 amount
-    );
-    
     event SharesMinted(
         address indexed contributor,
         uint256 amount
@@ -125,11 +116,6 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     event GoalAmountUpdated(
         uint256 oldGoalAmount,
         uint256 newGoalAmount
-    );
-    
-    event CampaignStatusUpdated(
-        bool oldIsActive,
-        bool newIsActive
     );
     
     event MaxContributionAmountUpdated(
@@ -152,8 +138,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     modifier campaignActive() {
         require(
-            isActive && 
-            block.timestamp < deadline,
+            _isCampaignActive(),
             "Campaign is not active"
         );
         _;
@@ -161,12 +146,11 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     modifier campaignNotCompleted() {
         require(
-            !isCompleted,
+            !_isCampaignCompleted(),
             "Campaign is already completed"
         );
         _;
     }
-    
     
     function contribute(uint256 amount) 
         external 
@@ -174,7 +158,6 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         campaignActive()
         campaignNotCompleted()
     {
-        _checkAndCompleteOnDeadline();
         
         require(msg.sender != address(0), "Zero address");
         require(amount > 0, "Contribution amount must be greater than 0");
@@ -205,10 +188,8 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
             timestamp: block.timestamp
         }));
         
-        bool campaignCompleted = false;
-        if (currentAmount >= goalAmount) {
+        if (_isCampaignCompleted()) {
             _completeCampaign(true);
-            campaignCompleted = true;
         }
         
         usdc.safeTransferFrom(msg.sender, address(this), amount);
@@ -221,17 +202,19 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     function withdrawFunds()
         external
         onlyCampaignCreator()
-        campaignNotCompleted()
     {
         require(
-            currentAmount >= goalAmount,
+            !_isCampaignActive(),
+            "Campaign is still active"
+        );
+
+        require(
+            _isCampaignCompleted(),
             "Campaign goal not reached"
         );
         
         uint256 amount = currentAmount;
         currentAmount = 0;
-        isCompleted = true;
-        isActive = false;
         
         usdc.safeTransfer(creator, amount);
         
@@ -239,46 +222,16 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         emit CampaignCompleted(true, amount);
     }
     
-    function emergencyWithdrawal()
-        external
-        onlyCampaignCreator()
-        campaignNotCompleted()
-    {
-        require(
-            block.timestamp >= deadline,
-            "Campaign deadline not reached"
-        );
-        require(
-            currentAmount < goalAmount,
-            "Campaign goal was reached - use withdrawFunds() instead"
-        );
-        require(
-            currentAmount > 0,
-            "No funds to withdraw"
-        );
-        
-        uint256 amount = currentAmount;
-        currentAmount = 0;
-        isCompleted = true;
-        isActive = false;
-        
-        usdc.safeTransfer(creator, amount);
-        
-        emit EmergencyWithdrawal(creator, amount);
-        emit CampaignCompleted(false, amount);
-    }
-    
     function requestRefund()
         external
         nonReentrant
-        campaignNotCompleted()
     {
         require(
-            block.timestamp >= deadline,
-            "Campaign deadline not reached"
+            !_isCampaignActive(),
+            "Campaign is still active"
         );
         require(
-            currentAmount < goalAmount,
+            !_isCampaignCompleted(),
             "Campaign goal was reached"
         );
         require(
@@ -303,15 +256,12 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     }
     
     function _completeCampaign(bool _goalReached) internal {
-        isCompleted = true;
-        isActive = false;
-        
         emit CampaignCompleted(_goalReached, currentAmount);
     }
     
     function _checkAndCompleteOnDeadline() internal {
-        if (block.timestamp >= deadline && isActive && !isCompleted) {
-            bool goalReached = currentAmount >= goalAmount;
+        if (!_isCampaignActive()) {
+            bool goalReached = _isCampaignCompleted();
             _completeCampaign(goalReached);
         }
     }
@@ -344,22 +294,25 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
         
         emit GoalAmountUpdated(oldGoalAmount, newGoalAmount);
         
-        if (currentAmount >= goalAmount && isActive) {
+        if (_isCampaignCompleted()) {
             _completeCampaign(true);
         }
     }
     
-    function updateIsActive(bool newIsActive) 
-        external 
-        onlyCampaignCreator() 
-        campaignNotCompleted() 
-    {
-        require(newIsActive != isActive, "New status must be different from current status");
-        
-        bool oldIsActive = isActive;
-        isActive = newIsActive;
-        
-        emit CampaignStatusUpdated(oldIsActive, newIsActive);
+    function _isCampaignCompleted() internal view returns (bool) {
+        return currentAmount >= goalAmount;
+    }
+    
+    function _isCampaignActive() internal view returns (bool) {
+        return !_isCampaignCompleted() && block.timestamp < deadline;
+    }
+    
+    function isCompleted() external view returns (bool) {
+        return _isCampaignCompleted();
+    }
+    
+    function isActive() external view returns (bool) {
+        return _isCampaignActive();
     }
     
     function updateMaxContributionAmount(uint256 newMaxAmount) 
@@ -414,8 +367,8 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
             goalAmount,
             currentAmount,
             deadline,
-            isActive,
-            isCompleted
+            _isCampaignActive(),
+            _isCampaignCompleted()
         );
     }
     

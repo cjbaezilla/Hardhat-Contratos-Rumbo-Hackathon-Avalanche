@@ -12,4 +12,9 @@ contract MockUSDC is ERC20 {
     function decimals() public pure override returns (uint8) {
         return 6;
     }
+    
+    function faucet() external {
+        uint256 faucetAmount = 10000 * 10**decimals();
+        _mint(msg.sender, faucetAmount);
+    }
 }

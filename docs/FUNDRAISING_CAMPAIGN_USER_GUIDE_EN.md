@@ -133,25 +133,61 @@ Only the campaign creator can perform certain actions like withdrawing funds or 
 
 1. **Create Your Campaign**: Deploy the contract with your campaign parameters
 2. **Monitor Progress**: Check contributions and campaign status regularly
-3. **Withdraw Funds**: Once the goal is reached, call `withdrawFunds`
-4. **Handle Refunds**: If the campaign fails, contributors can request refunds
-5. **Emergency Withdrawal**: If needed, withdraw partial funds after the deadline
+3. **Update Parameters**: Adjust deadline, goal amount, or contribution limits as needed
+4. **Withdraw Funds**: Once the goal is reached, call `withdrawFunds`
+5. **Handle Refunds**: If the campaign fails, contributors can request refunds
+6. **Manual Deadline Check**: Use `checkDeadlineAndComplete()` to manually verify campaign status
 
 ## Advanced Features
 
 ### Campaign Updates
 Creators can update certain parameters during the campaign:
-- **Deadline**: Extend or shorten the campaign duration
-- **Goal Amount**: Adjust the funding target
-- **Active Status**: Pause or resume the campaign
-- **Contribution Limits**: Modify the anti-whale parameters
+- **Deadline**: Extend or shorten the campaign duration using `updateDeadline()`
+- **Goal Amount**: Adjust the funding target using `updateGoalAmount()`
+- **Contribution Limits**: Modify the anti-whale parameters using `updateMaxContributionAmount()` and `updateMaxContributionPercentage()`
+- **Deadline Verification**: Manually trigger deadline checks using `checkDeadlineAndComplete()`
 
 ### Viewing Campaign Data
 The contract provides several functions to view campaign information:
-- **Campaign Stats**: Goal, current amount, deadline, status
-- **Contributions**: Complete list of all contributions
-- **User Balances**: How much each person has contributed
-- **Share Balances**: How many share tokens each person holds
+- **Campaign Stats**: Goal, current amount, deadline, status using `getCampaignStats()`
+- **Contributions**: Complete list of all contributions using `getCampaignContributions()`
+- **User Balances**: How much each person has contributed using `getContributorAmount()`
+- **Share Balances**: How many share tokens each person holds using `getUserShareBalance()`
+- **Anti-Whale Parameters**: Current limits using `getAntiWhaleParameters()`
+- **Maximum Allowed Contribution**: Calculate limits for specific users using `getMaxAllowedContribution()`
+- **Token Information**: Share token address and total supply using `getSharesTokenAddress()` and `getTotalSharesSupply()`
+
+### Advanced Administration Functions
+
+#### Updating Campaign Parameters
+Campaign creators have access to several administrative functions to manage their campaigns:
+
+**`updateDeadline(uint256 newDeadline)`**
+- Allows creators to extend or modify the campaign deadline
+- New deadline must be in the future and different from current deadline
+- Can only be called by the campaign creator
+- Campaign must not be completed
+
+**`updateGoalAmount(uint256 newGoalAmount)`**
+- Allows creators to adjust the funding target
+- New goal must be greater than 0 and different from current goal
+- If new goal is lower than current amount, campaign automatically completes
+- Can only be called by the campaign creator
+
+**`updateMaxContributionAmount(uint256 newMaxAmount)`**
+- Modifies the maximum amount any single person can contribute
+- New amount must be greater than 0 and different from current limit
+- Helps maintain anti-whale protection
+
+**`updateMaxContributionPercentage(uint256 newMaxPercentage)`**
+- Adjusts the maximum percentage of goal any single person can contribute
+- Must be between 1 and 10000 basis points (0.01% to 100%)
+- Different from current percentage
+
+**`checkDeadlineAndComplete()`**
+- Manually triggers deadline verification and campaign completion
+- Can be called by anyone to ensure campaign status is up to date
+- Useful for ensuring accurate campaign state
 
 ## Common Scenarios
 
@@ -188,6 +224,9 @@ The contract provides several functions to view campaign information:
 - **Provide Updates**: Keep contributors informed about progress
 - **Respect Deadlines**: Don't extend deadlines unnecessarily
 - **Plan for Success**: Have a plan for what happens when you reach your goal
+- **Monitor Anti-Whale Parameters**: Regularly review and adjust contribution limits as needed
+- **Use Administrative Functions**: Leverage `updateDeadline()`, `updateGoalAmount()`, and limit functions to optimize campaign performance
+- **Verify Campaign Status**: Use `checkDeadlineAndComplete()` to ensure accurate campaign state
 
 ## Technical Requirements
 

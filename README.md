@@ -36,6 +36,8 @@ The main contract that manages crowdfunding campaigns:
 - Fund withdrawal and emergency functions
 - Campaign parameter updates
 
+**📍 Deployed Address**: [0x239FcAC03f24Ed5565322B3a0c269BaDe3fD4e3C](https://testnet.snowtrace.io/address/0x239FcAC03f24Ed5565322B3a0c269BaDe3fD4e3C)
+
 ### [UserSharesToken.sol](contracts/UserSharesToken.sol)
 Advanced ERC20 token representing campaign shares:
 - **ERC20**: Basic token functionality
@@ -44,11 +46,15 @@ Advanced ERC20 token representing campaign shares:
 - **ERC20Permit**: Gasless approvals
 - **ERC20Votes**: Integrated DAO governance
 
+**📍 Deployed Address**: [0x762A5B1CEC9475563F4acE29efE568DA23C5566f](https://testnet.snowtrace.io/address/0x762A5B1CEC9475563F4acE29efE568DA23C5566f)
+
 ### [MockUSDC.sol](contracts/libs/MockUSDC.sol)
 Simulated USDC token for testing and development:
 - Basic ERC20 implementation
 - 6 decimals (like real USDC)
 - Configurable initial supply
+
+**📍 Deployed Address**: [0x47BD05Be91f58efD2149B4e479E2eE3B3efF8d5E](https://testnet.snowtrace.io/address/0x47BD05Be91f58efD2149B4e479E2eE3B3efF8d5E)
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -258,6 +264,7 @@ Este proyecto fue desarrollado para el Avalanche Hackathon, demostrando las capa
 - [Hardhat Documentation](https://hardhat.org/docs)
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
 - [USDC on Avalanche](https://docs.avax.network/build/tutorials/smart-digital-assets/transfer-avax-between-x-and-p-chain)
+- [Slither - Static Analyzer for Solidity](https://github.com/crytic/slither)
 
 ---
 

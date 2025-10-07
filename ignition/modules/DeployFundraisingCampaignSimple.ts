@@ -11,7 +11,7 @@ const DeployFundraisingCampaignSimpleModule = buildModule("DeployFundraisingCamp
   const campaignTitle = "Test Campaign";
   const campaignDescription = "A test fundraising campaign";
   const goalAmount = 100000n * 10n ** 6n; // 100K USDC
-  const campaignDuration = 7 * 24 * 60 * 60; // 7 days
+  const campaignDuration = 1 * 24 * 60 * 60; // 7 days
   
   // Anti-whale mechanism parameters
   const maxContributionAmount = 10000n * 10n ** 6n; // 10K USDC max per transaction

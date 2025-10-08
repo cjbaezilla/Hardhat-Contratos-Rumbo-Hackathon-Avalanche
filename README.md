@@ -15,7 +15,7 @@ Una plataforma de crowdfunding descentralizada construida en Avalanche que combi
 - **Distribución equitativa**: Asegura participación amplia de la comunidad
 
 ### 🗳️ Gobernanza DAO Integrada
-- **Tokens de participación (userSHARE)**: Cada contribución genera tokens de gobernanza
+- **Tokens de participación (u-SHARE)**: Cada contribución genera tokens de gobernanza
 - **Derechos de voto**: Los tokens otorgan poder de decisión en la DAO resultante
 - **Estándar ERC20Votes**: Compatible con plataformas DAO existentes
 - **Transferibilidad**: Los derechos de voto pueden transferirse
@@ -45,8 +45,11 @@ Advanced ERC20 token representing campaign shares:
 - **ERC1363**: Support for transfer callbacks
 - **ERC20Permit**: Gasless approvals
 - **ERC20Votes**: Integrated DAO governance
+- **ERC-6372**: Timestamp-based voting for reliable governance on Avalanche
 
 **📍 Deployed Address**: [0x762A5B1CEC9475563F4acE29efE568DA23C5566f](https://testnet.snowtrace.io/address/0x762A5B1CEC9475563F4acE29efE568DA23C5566f)
+
+> **📘 Governance Implementation**: The token uses timestamp-based voting (ERC-6372) instead of block numbers for precise and reliable governance periods on Avalanche and L2 networks. See [Timestamp-Based Governance Implementation Guide](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md) for technical details.
 
 ### [MockUSDC.sol](contracts/libs/MockUSDC.sol)
 Simulated USDC token for testing and development:
@@ -206,7 +209,7 @@ npx hardhat ignition deploy --network sepolia ignition/modules/DeployFundraising
 
 ### 1. Creación
 - El creador despliega el contrato con parámetros específicos
-- Se acuña el token de participaciones (userSHARE)
+- Se acuña el token de participaciones (u-SHARE)
 - La campaña se marca como activa
 
 ### 2. Recaudación
@@ -236,10 +239,16 @@ npx hardhat ignition deploy --network sepolia ignition/modules/DeployFundraising
 
 ## 📚 Additional Documentation
 
+### User Guides
 - [User Guide in English](docs/FUNDRAISING_CAMPAIGN_USER_GUIDE_EN.md)
 - [Guía de Usuario en Español](docs/GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
+
+### Technical Documentation
 - [Test Documentation](docs/FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md)
 - [Contract Testing Documentation (Spanish)](docs/DOCUMENTACION_PRUEBAS_CONTRATO_FUNDRAISING.md)
+- [Timestamp-Based Governance Implementation](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md) 🆕
+
+### Integration Guides
 - [RainbowKit/Wagmi Implementation Guide](docs/RAINBOWKIT_WAGMI_IMPLEMENTATION_GUIDE.md)
 
 ## 🤝 Contribuir

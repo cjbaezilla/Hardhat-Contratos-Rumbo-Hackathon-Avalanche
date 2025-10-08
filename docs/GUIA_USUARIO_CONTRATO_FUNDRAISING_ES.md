@@ -93,7 +93,7 @@ Los límites aseguran que las campañas permanezcan accesibles para una amplia c
 
 ## Tokens de Participación Explicados - Tu Poder de Voto DAO
 
-Cuando contribuyes a una campaña, recibes "User Shares Tokens" (userSHARE). Estos tokens son mucho más que simples recibos - son tus **tokens de gobernanza para la DAO**:
+Cuando contribuyes a una campaña, recibes "User Shares Tokens" (u-SHARE). Estos tokens son mucho más que simples recibos - son tus **tokens de gobernanza para la DAO**:
 
 - **Representan Tu Participación**: Cada token representa $1 USDC que contribuiste
 - **Poder de Voto DAO**: Tus tokens te dan derechos de voto en la organización autónoma descentralizada
@@ -101,9 +101,10 @@ Cuando contribuyes a una campaña, recibes "User Shares Tokens" (userSHARE). Est
 - **Influencia Proporcional**: Mientras más contribuyas, más poder de voto tienes en la DAO
 - **Son Transferibles**: Puedes enviarlos a otras personas, transfiriendo tus derechos de voto
 - **Construidos para Gobernanza**: Los tokens usan el estándar ERC20Votes, diseñado específicamente para gobernanza DAO
+- **Votación Basada en Timestamps**: Usa ERC-6372 con checkpoints basados en timestamps para gobernanza precisa y confiable en Avalanche
 - **Pueden Ser Quemados**: Si obtienes un reembolso, tus tokens y derechos de voto se destruyen
 
-Los tokens están construidos usando múltiples estándares de Ethereum incluyendo **ERC20Votes**, que está diseñado específicamente para sistemas de gobernanza descentralizada. Esto los hace compatibles con varias plataformas DAO y mecanismos de votación.
+Los tokens están construidos usando múltiples estándares de Ethereum incluyendo **ERC20Votes** y **ERC-6372**, que están diseñados específicamente para sistemas de gobernanza descentralizada. La implementación usa **votación basada en timestamps** en lugar de números de bloque, asegurando períodos de gobernanza precisos y predecibles independientemente de las condiciones de la red. Esto los hace compatibles con varias plataformas DAO y mecanismos de votación, con confiabilidad mejorada en Avalanche y redes Layer 2.
 
 ## Características de Seguridad
 

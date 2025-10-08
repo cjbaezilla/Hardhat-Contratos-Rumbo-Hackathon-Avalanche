@@ -650,7 +650,7 @@ export function CampaignDashboard() {
                 {userShareBalance && Number(userShareBalance) > 0 && (
                   <div className="p-3 bg-purple-50 rounded-lg">
                     <p className="text-sm text-purple-800">
-                      Your Share Tokens: {Number(userShareBalance) / 1e6} userSHARE
+                      Your Share Tokens: {Number(userShareBalance) / 1e6} u-SHARE
                     </p>
                   </div>
                 )}

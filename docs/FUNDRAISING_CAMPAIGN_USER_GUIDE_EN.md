@@ -93,7 +93,7 @@ The limits ensure that campaigns remain accessible to a broad community of suppo
 
 ## Share Tokens Explained - Your DAO Voting Power
 
-When you contribute to a campaign, you receive "User Shares Tokens" (userSHARE). These tokens are much more than just receipts - they're your **governance tokens for the DAO**:
+When you contribute to a campaign, you receive "User Shares Tokens" (u-SHARE). These tokens are much more than just receipts - they're your **governance tokens for the DAO**:
 
 - **Represent Your Stake**: Each token represents $1 USDC you contributed
 - **DAO Voting Power**: Your tokens give you voting rights in the decentralized autonomous organization
@@ -101,9 +101,10 @@ When you contribute to a campaign, you receive "User Shares Tokens" (userSHARE).
 - **Proportional Influence**: The more you contribute, the more voting power you have in the DAO
 - **Are Transferable**: You can send them to other people, transferring your voting rights
 - **Built for Governance**: The tokens use ERC20Votes standard, designed specifically for DAO governance
+- **Timestamp-Based Voting**: Uses ERC-6372 with timestamp-based checkpoints for precise and reliable governance on Avalanche
 - **Can Be Burned**: If you get a refund, your tokens and voting rights are destroyed
 
-The tokens are built using multiple Ethereum standards including **ERC20Votes**, which is specifically designed for decentralized governance systems. This makes them compatible with various DAO platforms and voting mechanisms.
+The tokens are built using multiple Ethereum standards including **ERC20Votes** and **ERC-6372**, which are specifically designed for decentralized governance systems. The implementation uses **timestamp-based voting** rather than block numbers, ensuring precise and predictable governance periods regardless of network conditions. This makes them compatible with various DAO platforms and voting mechanisms, with improved reliability on Avalanche and Layer 2 networks.
 
 ## Security Features
 

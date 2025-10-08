@@ -10,7 +10,7 @@ import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract UserSharesToken is ERC20, ERC20Burnable, Ownable, ERC1363, ERC20Permit, ERC20Votes {
-    constructor(address initialOwner) ERC20("User Shares Token", "userSHARE") Ownable(initialOwner) ERC20Permit("User Shares Token") {}
+    constructor(address initialOwner) ERC20("User Shares Token", "U-SHARE") Ownable(initialOwner) ERC20Permit("User Shares Token") {}
 
     function decimals() public pure override returns (uint8) {
         return 6;
@@ -38,5 +38,13 @@ contract UserSharesToken is ERC20, ERC20Burnable, Ownable, ERC1363, ERC20Permit,
         returns (uint256)
     {
         return super.nonces(account);
+    }
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+    
+    function CLOCK_MODE() public pure override returns (string memory) {
+        return "mode=timestamp";
     }
 }

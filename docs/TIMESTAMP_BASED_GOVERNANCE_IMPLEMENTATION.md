@@ -379,12 +379,7 @@ Si planeas implementar un DAO completo para tu plataforma de fundraising:
 - [ ] Configurar parámetros de votación
 - [ ] Integrar con FundraisingCampaign como executor
 
-### Fase 3: Timelock (Futuro)
-- [ ] Desplegar TimelockController
-- [ ] Configurar roles (Proposer, Executor, Admin)
-- [ ] Transferir ownership del FundraisingCampaign al Timelock
-
-### Fase 4: Integración Frontend (Futuro)
+### Fase 3: Integración Frontend (Futuro)
 - [ ] Conectar con Tally para propuestas
 - [ ] Dashboard de gobernanza
 - [ ] Notificaciones de votaciones

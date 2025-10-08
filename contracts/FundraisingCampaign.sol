@@ -268,7 +268,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     function updateDeadline(uint256 newDeadline) 
         external 
-        onlyCampaignCreator() 
+        onlyOwner() 
         campaignNotCompleted() 
     {
         require(newDeadline > block.timestamp, "New deadline must be in the future");
@@ -282,7 +282,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     function updateGoalAmount(uint256 newGoalAmount) 
         external 
-        onlyCampaignCreator() 
+        onlyOwner() 
         campaignNotCompleted() 
     {
         require(newGoalAmount > 0, "Goal amount must be greater than 0");
@@ -317,7 +317,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     function updateMaxContributionAmount(uint256 newMaxAmount) 
         external 
-        onlyCampaignCreator() 
+        onlyOwner() 
         campaignNotCompleted() 
     {
         require(newMaxAmount > 0, "Max contribution amount must be greater than 0");
@@ -332,7 +332,7 @@ contract FundraisingCampaign is Ownable, ReentrancyGuard {
     
     function updateMaxContributionPercentage(uint256 newMaxPercentage) 
         external 
-        onlyCampaignCreator() 
+        onlyOwner() 
         campaignNotCompleted() 
     {
         require(newMaxPercentage > 0 && newMaxPercentage <= 10000, "Max contribution percentage must be between 1 and 10000 basis points");

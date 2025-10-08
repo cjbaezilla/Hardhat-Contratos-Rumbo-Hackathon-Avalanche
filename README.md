@@ -36,7 +36,7 @@ The main contract that manages crowdfunding campaigns:
 - Fund withdrawal and emergency functions
 - Campaign parameter updates
 
-**📍 Deployed Address**: [0x239FcAC03f24Ed5565322B3a0c269BaDe3fD4e3C](https://testnet.snowtrace.io/address/0x239FcAC03f24Ed5565322B3a0c269BaDe3fD4e3C)
+**📍 Deployed Address**: [0xE29A2d6c9A495D82FEA79059aFa6f9F3647742fC](https://testnet.snowtrace.io/address/0xE29A2d6c9A495D82FEA79059aFa6f9F3647742fC)
 
 ### [UserSharesToken.sol](contracts/UserSharesToken.sol)
 Advanced ERC20 token representing campaign shares:
@@ -47,9 +47,37 @@ Advanced ERC20 token representing campaign shares:
 - **ERC20Votes**: Integrated DAO governance
 - **ERC-6372**: Timestamp-based voting for reliable governance on Avalanche
 
-**📍 Deployed Address**: [0x762A5B1CEC9475563F4acE29efE568DA23C5566f](https://testnet.snowtrace.io/address/0x762A5B1CEC9475563F4acE29efE568DA23C5566f)
+**📍 Deployed Address**: [0x2dA13915B2074c6d34eFb5Bb1583793C6f5874AB](https://testnet.snowtrace.io/address/0x2dA13915B2074c6d34eFb5Bb1583793C6f5874AB)
 
 > **📘 Governance Implementation**: The token uses timestamp-based voting (ERC-6372) instead of block numbers for precise and reliable governance periods on Avalanche and L2 networks. See [Timestamp-Based Governance Implementation Guide](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md) for technical details.
+
+### [FundraisingGovernor.sol](contracts/FundraisingGovernor.sol) 🆕
+Complete on-chain governance system for decentralized campaign management:
+- **Governor**: OpenZeppelin Governor framework
+- **GovernorSettings**: Configurable voting parameters
+- **GovernorCountingSimple**: For/Against/Abstain voting
+- **GovernorVotes**: Voting power from u-SHARE tokens
+- **GovernorVotesQuorumFraction**: 4% quorum requirement
+- **GovernorTimelockControl**: 2-day execution delay for security
+
+**📍 Deployed Address**: [0xD23CD07b4A53249B7D7484eE76af76d7eCC80cEe](https://testnet.snowtrace.io/address/0xD23CD07b4A53249B7D7484eE76af76d7eCC80cEe)
+
+**⚙️ Governance Parameters**:
+- Voting Delay: 1 day (86400 seconds)
+- Voting Period: 1 week (604800 seconds)
+- Proposal Threshold: 0 tokens (democratic)
+- Quorum: 4% of total supply
+- Timelock Delay: 2 days (172800 seconds)
+
+> **🏛️ DAO Governance**: Complete system for community-driven decisions on campaign parameters, updates, and fund management. See [Governor Implementation Guide](docs/GOVERNOR_IMPLEMENTATION_GUIDE.md) for complete documentation.
+
+### TimelockController (OpenZeppelin)
+Security layer that delays execution of approved proposals:
+- **Min Delay**: 2 days for community review
+- **Roles**: Proposer (Governor only), Executor (anyone), Admin (Timelock itself)
+- **Ownership**: Holds control of FundraisingCampaign contract
+
+**📍 Deployed Address**: [0x0033e814D3B4ce62cd4012379C67dCD560975544](https://testnet.snowtrace.io/address/0x0033e814D3B4ce62cd4012379C67dCD560975544)
 
 ### [MockUSDC.sol](contracts/libs/MockUSDC.sol)
 Simulated USDC token for testing and development:
@@ -57,7 +85,7 @@ Simulated USDC token for testing and development:
 - 6 decimals (like real USDC)
 - Configurable initial supply
 
-**📍 Deployed Address**: [0x47BD05Be91f58efD2149B4e479E2eE3B3efF8d5E](https://testnet.snowtrace.io/address/0x47BD05Be91f58efD2149B4e479E2eE3B3efF8d5E)
+**📍 Deployed Address**: [0x32d9ed02eB0E5709c5750b9DEA2b7560991821ba](https://testnet.snowtrace.io/address/0x32d9ed02eB0E5709c5750b9DEA2b7560991821ba)
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -74,21 +102,29 @@ Simulated USDC token for testing and development:
 ```
 ├── contracts/                    # Smart contracts
 │   ├── [FundraisingCampaign.sol](contracts/FundraisingCampaign.sol)  # Main contract
-│   ├── [UserSharesToken.sol](contracts/UserSharesToken.sol)          # Share token
+│   ├── [UserSharesToken.sol](contracts/UserSharesToken.sol)          # Share token (ERC20Votes + ERC-6372)
+│   ├── [FundraisingGovernor.sol](contracts/FundraisingGovernor.sol)  # Governance contract
 │   └── libs/
 │       └── [MockUSDC.sol](contracts/libs/MockUSDC.sol)               # Mock USDC
 ├── test/                        # Contract tests
 │   └── [FundraisingCampaign.t.sol](test/FundraisingCampaign.t.sol)
 ├── ignition/                    # Deployment scripts
 │   └── modules/
-│       └── [DeployFundraisingCampaignSimple.ts](ignition/modules/DeployFundraisingCampaignSimple.ts)
+│       ├── [DeployFundraisingCampaignSimple.ts](ignition/modules/DeployFundraisingCampaignSimple.ts)
+│       └── [DeployGovernance.ts](ignition/modules/DeployGovernance.ts)
+├── scripts/                     # Utility scripts
+│   ├── [setup-governance.ts](scripts/setup-governance.ts)            # Configure governance
+│   ├── [create-proposal.ts](scripts/create-proposal.ts)              # Create proposals
+│   └── [vote-proposal.ts](scripts/vote-proposal.ts)                  # Vote on proposals
 ├── docs/                        # Documentation
 │   ├── [FUNDRAISING_CAMPAIGN_USER_GUIDE_EN.md](docs/FUNDRAISING_CAMPAIGN_USER_GUIDE_EN.md)
 │   ├── [GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md](docs/GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
 │   ├── [FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md](docs/FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md)
 │   ├── [DOCUMENTACION_PRUEBAS_CONTRATO_FUNDRAISING.md](docs/DOCUMENTACION_PRUEBAS_CONTRATO_FUNDRAISING.md)
+│   ├── [TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md)
+│   ├── [GOVERNOR_IMPLEMENTATION_GUIDE.md](docs/GOVERNOR_IMPLEMENTATION_GUIDE.md) 🆕
 │   └── [RAINBOWKIT_WAGMI_IMPLEMENTATION_GUIDE.md](docs/RAINBOWKIT_WAGMI_IMPLEMENTATION_GUIDE.md)
-└── scripts/                     # Utility scripts
+└── ...
 ```
 
 ## 🚀 Instalación y Configuración
@@ -125,18 +161,28 @@ SEPOLIA_RPC_URL=tu_url_rpc_sepolia
 
 ## 🧪 Testing
 
+### Test Coverage Overview
+
+| **Component** | **Tests** | **Status** | **Coverage** |
+|---------------|-----------|------------|--------------|
+| FundraisingCampaign | 107 | ✅ All Passing | ~95% |
+| FundraisingGovernor | 34 | ✅ All Passing | ~90% |
+| **TOTAL** | **141** | **✅ 141 Passing** | **~92%** |
+
 ### Ejecutar todos los tests
 ```bash
 npx hardhat test
 ```
 
+Expected output: **141 passing tests**
+
 ### Ejecutar tests específicos
 ```bash
-# Solo tests de Solidity
-npx hardhat test solidity
+# Solo tests del Campaign
+npx hardhat test test/FundraisingCampaign.t.sol
 
-# Solo tests de Mocha
-npx hardhat test mocha
+# Solo tests del Governor
+npx hardhat test test/FundraisingGovernor.t.sol
 ```
 
 ### Coverage de tests
@@ -244,9 +290,14 @@ npx hardhat ignition deploy --network sepolia ignition/modules/DeployFundraising
 - [Guía de Usuario en Español](docs/GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
 
 ### Technical Documentation
-- [Test Documentation](docs/FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md)
+- [Campaign Test Documentation (107 tests)](docs/FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md)
+- [Governor Test Documentation (34 tests)](docs/FUNDRAISING_GOVERNOR_TEST_DOCUMENTATION.md) 🆕
 - [Contract Testing Documentation (Spanish)](docs/DOCUMENTACION_PRUEBAS_CONTRATO_FUNDRAISING.md)
-- [Timestamp-Based Governance Implementation](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md) 🆕
+- [Timestamp-Based Governance Implementation](docs/TIMESTAMP_BASED_GOVERNANCE_IMPLEMENTATION.md)
+- [Governance Implementation Changelog](docs/GOVERNANCE_IMPLEMENTATION_CHANGELOG.md) 🆕
+  > Complete record of all governance changes, breaking changes, and migration guide
+- **[OpenZeppelin DAO Mechanics - Complete Academic Guide](docs/OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE.md)** 📚
+  > Exhaustive 18,000+ word academic guide covering DAO mechanics from first principles to expert implementation
 
 ### Integration Guides
 - [RainbowKit/Wagmi Implementation Guide](docs/RAINBOWKIT_WAGMI_IMPLEMENTATION_GUIDE.md)

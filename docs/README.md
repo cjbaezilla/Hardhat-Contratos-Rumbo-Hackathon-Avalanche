@@ -14,6 +14,29 @@ Bienvenido a la documentación completa del sistema de fundraising descentraliza
 
 ## 👥 Guías de Usuario
 
+### [GUIA_USUARIO.md](./GUIA_USUARIO.md)
+**Idioma:** 🇪🇸 Español | **Nivel:** Principiante
+
+Guía completa paso a paso para usuarios finales de la plataforma de fundraising descentralizada.
+
+**Contenido:**
+- Introducción: ¿Qué es esta plataforma y su finalidad?
+- Características principales (USDC, Tokens, Anti-Ballena, Reembolsos, Tally)
+- Paso 1: Configurar billetera Web3 (Core Wallet o MetaMask)
+- Paso 2: Obtener AVAX para gas en testnet
+- Paso 3: Obtener USDC desde el Faucet
+- Paso 4: Contribuir a una campaña (proceso completo)
+- Paso 5: Recibir tokens de gobernanza
+- Paso 6: Participar en el DAO con Tally
+- Funciones avanzadas (reembolsos, múltiples contribuciones)
+- Preguntas frecuentes (FAQs)
+- Solución de problemas detallada
+- Glosario de términos blockchain y DAO
+
+**Ideal para:** Usuarios nuevos en crypto/blockchain, contribuyentes, cualquier persona que quiera usar la plataforma web
+
+---
+
 ### [GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md](./GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
 **Idioma:** 🇪🇸 Español | **Nivel:** Principiante
 
@@ -305,8 +328,9 @@ English version of the complete guide to DAO mechanics with OpenZeppelin Governo
 ## 🚀 Quick Start Guides
 
 ### Para Usuarios
-1. Comienza con [GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md](./GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
-2. Si eres creador de campaña, revisa también [GUIA_OPERACION_GOBERNANZA.md](./GUIA_OPERACION_GOBERNANZA.md)
+1. **¡Empieza aquí!** [GUIA_USUARIO.md](./GUIA_USUARIO.md) - Tutorial completo desde cero para usar la plataforma web
+2. Para detalles técnicos del contrato, consulta [GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md](./GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md)
+3. Si eres creador de campaña, revisa también [GUIA_OPERACION_GOBERNANZA.md](./GUIA_OPERACION_GOBERNANZA.md)
 
 ### Para Desarrolladores
 1. Revisa [OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE.md](./OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE.md) (o su versión [EN](./OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE_EN.md)) para entender los fundamentos
@@ -335,7 +359,8 @@ English version of the complete guide to DAO mechanics with OpenZeppelin Governo
 
 | Documento | 🇪🇸 Español | 🇬🇧 English |
 |-----------|-------------|-------------|
-| Guía de Usuario | ✅ GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md | ✅ FUNDRAISING_CAMPAIGN_USER_GUIDE_EN.md |
+| Guía de Usuario - Plataforma Web | ✅ GUIA_USUARIO.md | - |
+| Guía de Usuario - Contrato | ✅ GUIA_USUARIO_CONTRATO_FUNDRAISING_ES.md | ✅ FUNDRAISING_CAMPAIGN_USER_GUIDE_EN.md |
 | Documentación de Tests - Campaign | ✅ DOCUMENTACION_PRUEBAS_CONTRATO_FUNDRAISING.md | ✅ FUNDRAISING_CAMPAIGN_TEST_DOCUMENTATION.md |
 | Documentación de Tests - Governor | ✅ FUNDRAISING_GOVERNOR_TEST_DOCUMENTATION.md | ✅ FUNDRAISING_GOVERNOR_TEST_DOCUMENTATION_EN.md |
 | Guía de Mecánicas DAO | ✅ OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE.md | ✅ OPENZEPPELIN_DAO_MECHANICS_COMPLETE_GUIDE_EN.md |
